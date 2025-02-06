@@ -24,9 +24,9 @@ bool Hand::equal() {
         return false;
     }
 
-    int last = cards[0].getValue();
+    int last = cards[0].getRank();
     for (int i = 1; i < cards.size(); i++) {
-        if (last != cards[i].getValue()) {
+        if (last != cards[i].getRank()) {
             return false;
         }
     }
@@ -42,7 +42,7 @@ int Hand::getValue() {
 
     int sum = 0;
     for (int i = 0; i < cards.size(); i++) {
-        sum += cards[i].getValue();
+        sum += cards[i].getRank();
     }
 
     return sum;

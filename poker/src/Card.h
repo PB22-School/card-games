@@ -10,7 +10,8 @@ class Card {
     public:
     Card();
     Card(int suit, int rank);
-    int getValue() const;
+    int getRank() const;
+    int getSuit() const;
     void display(int x, int y, bool visible);
 };
 

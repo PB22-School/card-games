@@ -16,19 +16,19 @@ enum colors {
 };
 
 enum {
-    ACE,
-    TWO,
-    THREE,
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
-    EIGHT,
-    NINE,
-    TEN,
-    JACK,
-    QUEEN,
-    KING
+    ACE_CARD,
+    TWO_CARD,
+    THREE_CARD,
+    FOUR_CARD,
+    FIVE_CARD,
+    SIX_CARD,
+    SEVEN_CARD,
+    EIGHT_CARD,
+    NINE_CARD,
+    TEN_CARD,
+    JACK_CARD,
+    QUEEN_CARD,
+    KING_CARD
 };
 
 enum {
@@ -51,11 +51,14 @@ class Poker {
     Hand revealedCards;
     bool gameOver = false;
     bool playerWins = false;
+    bool tie = false;
     int playerMoney = 8300;
     int pot = 0;
 
     int playerScore;
+    int playerHandValue;
     int enemyScore;
+    int enemyHandValue;
 
     int buttonSelect = 0;
     vector<string> buttons = {"CALL", "RAISE"};
@@ -69,7 +72,7 @@ class Poker {
 
     void draw_button(string text, int x, int y, int padding);
     int button_length(string text, int padding);
-    int hand_value(Hand hand);
+    int hand_value(Hand hand, int* score);
 
     void draw();
 

@@ -125,27 +125,29 @@ bool Poker::update() {
 int Poker::hand_value(Hand hand, int* score) {
 
     for (int i = hand.size(); i >= 0; i--) {
-        Card dropped = hand.drop_card();
-        revealedCards.add_card(dropped);
+        revealedCards.add_card(hand.drop_card(i));
     }
 
     int lowestCard;
     int highestCard;
-    bool flush;
 
     int suits[N_SUITS] = {0,0,0,0};
     int ranks[N_RANKS] = {0,0,0, 0,0,0, 0,0,0, 0,0,0,0};
 
     for (int i = 0; i < revealedCards.size(); i++) {
-        int rank = revealedCards.cards[i].rank - 1;
+        int rank = revealedCards.cards[i].getRank() - 1;
         if (rank < lowestCard) {
             lowestCard = rank;
         }
         if (rank > highestCard) {
             highestCard = rank;
         }
-        suits[revealedCards.cards[i].suit]++;
-        ranks[revealedCards.cards[i].rank]++;
+        suits[revealedCards.cards[i].getSuit()]++;
+        ranks[revealedCards.cards[i].getRank()]++;
+    }
+
+    for (int i = 0; i < 2; i++) {
+        hand.add_card(revealedCards.drop_card(revealedCards.size() - (i + 1)));
     }
 
     // Flush = 5 same suit cards
@@ -204,33 +206,33 @@ int Poker::hand_value(Hand hand, int* score) {
             straight = true;
             break;
         }
-        else if (inc == 4 && i == KING && ranks[ACE]) {
+        else if (inc == 4 && i == KING_CARD && ranks[ACE_CARD]) {
             straight = true;
             break;
         } 
     }
 
     // Royal Flush ?
-    if (straight && flush && straightStart == TEN) {
-        score = 0;
+    if (straight && flush && straightStart == TEN_CARD) {
+        *score = 0;
         return ROYAL_FLUSH;
     }
 
     // Straight Flush ?
     if (straight && flush) {
-        score = straightStart;
+        *score = straightStart;
         return STRAIGHT_FLUSH;
     }
 
     // Four Of A Kind ?
     if (fourOfAKind != -1) {
-        score = fourOfAKind;
+        *score = fourOfAKind;
         return FOUR_OF_A_KIND;
     } 
     
     // Full House ?
     if (threeOfAKind != -1 && pair1 != -1) {
-        score = (threeOfAKind * 2) + max(pair1, pair2);
+        *score = (threeOfAKind * 2) + max(pair1, pair2);
         return THREE_OF_A_KIND;
     }
 
@@ -241,42 +243,80 @@ int Poker::hand_value(Hand hand, int* score) {
 
     // Straight ?
     if (straight) {
-        score = straightStart;
+        *score = straightStart;
         return STRAIGHT;
     }
 
     // Three Of A Kind ?
     if (threeOfAKind != -1) {
-        score = threeOfAKind;
+        *score = threeOfAKind;
         return THREE_OF_A_KIND;
     }
 
     // Two Pair ?
     if (pair1 != -1 && pair2 != -1) {
-        score = pair1 + pair2;
+        *score = pair1 + pair2;
         return TWO_PAIR;
     }
 
     // Pair ?
     if (pair1 != -1) {
-        score = pair1;
+        *score = pair1;
         return PAIR;
     }
 
-    return highestCard;
+    *score = highestCard;
+    return HIGH_CARD;
 }
 
 void Poker::call() {
+
+    if (gameOver) {
+        return;
+    }
+
     revealedCards.add_card(deck.getCard());
 
     if (revealedCards.size() >= 5) {
         gameOver = true;
 
-        
+        playerHandValue = hand_value(PlayerHand, &playerScore);
+        enemyHandValue = hand_value(DealerHand, &enemyScore);
+
+        if (playerHandValue > enemyHandValue) {
+            playerWins = true;
+        }
+        else if (playerHandValue < enemyHandValue) {
+            playerWins = false;
+        }
+        else {
+            if (playerScore > enemyScore) {
+                playerWins = true;
+            }
+            else if (playerScore < enemyScore) {
+                playerWins = false;
+            }
+            else {
+                tie = true;
+            }
+        }
+
+        if (tie) {
+            playerMoney += pot;
+            return;
+        }
+        else if (playerWins) {
+            playerMoney += pot * 2;
+        }
     }
 }
 
 void Poker::raise() {
+
+    if (gameOver) {
+        return;
+    }
+
     pot += 100;
     playerMoney -= 100;
 }

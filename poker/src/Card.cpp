@@ -11,8 +11,12 @@ Card::Card(int suit, int rank) {
     this->rank = rank;
 }
 
-int Card::getValue() const {
+int Card::getRank() const {
     return rank;
+}
+
+int Card::getSuit() const {
+    return suit;
 }
 
 
