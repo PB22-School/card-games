@@ -102,11 +102,8 @@ bool Poker::update() {
             break;
         
         case ' ':
-            if (buttons[buttonSelect] == "HIT") {
-                hit();
-            }
-            else if (buttons[buttonSelect] == "STAND") {
-                stand();
+            if (buttons[buttonSelect] == "CALL") {
+                call();
             }
             else if (buttons[buttonSelect] == "RAISE") {
                 raise();
@@ -123,6 +120,165 @@ bool Poker::update() {
     }
 
     return false;
+}
+
+int Poker::hand_value(Hand hand, int* score) {
+
+    for (int i = hand.size(); i >= 0; i--) {
+        Card dropped = hand.drop_card();
+        revealedCards.add_card(dropped);
+    }
+
+    int lowestCard;
+    int highestCard;
+    bool flush;
+
+    int suits[N_SUITS] = {0,0,0,0};
+    int ranks[N_RANKS] = {0,0,0, 0,0,0, 0,0,0, 0,0,0,0};
+
+    for (int i = 0; i < revealedCards.size(); i++) {
+        int rank = revealedCards.cards[i].rank - 1;
+        if (rank < lowestCard) {
+            lowestCard = rank;
+        }
+        if (rank > highestCard) {
+            highestCard = rank;
+        }
+        suits[revealedCards.cards[i].suit]++;
+        ranks[revealedCards.cards[i].rank]++;
+    }
+
+    // Flush = 5 same suit cards
+    bool flush = false;
+    for (int i = 0; i < N_SUITS; i++) {
+        if (suits[i] >= 5) {
+            flush = true;
+            break;
+        }
+    }
+    
+    // Straight = 5 increasing cards
+    bool straight = false;
+    int straightStart;
+    int inc = 0;
+
+    // Pairs
+    bool setPair = true;
+    int pair1 = -1;
+    int pair2 = -1;
+    int threeOfAKind = -1;
+    int fourOfAKind = -1;
+
+    for (int i = 0; i < N_RANKS; i++) {
+
+        if (ranks[i] == 2) {
+            if (setPair) {
+                pair1 = i;
+            }
+            else {
+                pair2 = i;
+            }
+
+            setPair = !setPair;
+        }
+        else if (ranks[i] == 3) {
+            threeOfAKind = max(threeOfAKind, i);
+        }
+        else if (ranks[i] == 4) {
+            fourOfAKind = max(fourOfAKind, i);
+        }
+
+
+        if (ranks[i] != 0) {
+            inc++;
+
+            if (inc == 1) {
+                straightStart = i;
+            }
+        }
+        else {
+            inc = 0;
+        }
+
+        if (inc >= 5) {
+            straight = true;
+            break;
+        }
+        else if (inc == 4 && i == KING && ranks[ACE]) {
+            straight = true;
+            break;
+        } 
+    }
+
+    // Royal Flush ?
+    if (straight && flush && straightStart == TEN) {
+        score = 0;
+        return ROYAL_FLUSH;
+    }
+
+    // Straight Flush ?
+    if (straight && flush) {
+        score = straightStart;
+        return STRAIGHT_FLUSH;
+    }
+
+    // Four Of A Kind ?
+    if (fourOfAKind != -1) {
+        score = fourOfAKind;
+        return FOUR_OF_A_KIND;
+    } 
+    
+    // Full House ?
+    if (threeOfAKind != -1 && pair1 != -1) {
+        score = (threeOfAKind * 2) + max(pair1, pair2);
+        return THREE_OF_A_KIND;
+    }
+
+    // Flush ?
+    if (flush) {
+        return FLUSH;
+    }
+
+    // Straight ?
+    if (straight) {
+        score = straightStart;
+        return STRAIGHT;
+    }
+
+    // Three Of A Kind ?
+    if (threeOfAKind != -1) {
+        score = threeOfAKind;
+        return THREE_OF_A_KIND;
+    }
+
+    // Two Pair ?
+    if (pair1 != -1 && pair2 != -1) {
+        score = pair1 + pair2;
+        return TWO_PAIR;
+    }
+
+    // Pair ?
+    if (pair1 != -1) {
+        score = pair1;
+        return PAIR;
+    }
+
+    return highestCard;
+}
+
+void Poker::call() {
+    revealedCards.add_card(deck.getCard());
+
+    if (revealedCards.size() >= 5) {
+        gameOver = true;
+
+        
+    }
+}
+
+void Poker::raise() {
+    pot += 100;
+    playerMoney -= 100;
 }
 
 /*
@@ -215,9 +371,9 @@ void Poker::draw() {
 
         color_set(WHITE, nullptr);
         mvaddstr(10, 20, "Dealer's Hand:");
-        mvaddstr(11, 20, itos(hand_value(DealerHand)).c_str());
+        mvaddstr(11, 20, "idk");
         mvaddstr(20, 20, "Your Hand:");
-        mvaddstr(21, 20, itos(hand_value(PlayerHand)).c_str());
+        mvaddstr(21, 20, "idk");
 
         if (playerWins) {
             color_set(GREEN, nullptr);

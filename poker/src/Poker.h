@@ -4,6 +4,9 @@
 #include <string>
 using namespace std;
 
+const int N_SUITS = 4;
+const int N_RANKS = 13;
+
 enum colors {
     WHITE = 3,
     BLACK,
@@ -13,8 +16,24 @@ enum colors {
 };
 
 enum {
+    ACE,
+    TWO,
+    THREE,
+    FOUR,
+    FIVE,
+    SIX,
+    SEVEN,
+    EIGHT,
+    NINE,
+    TEN,
+    JACK,
+    QUEEN,
+    KING
+};
+
+enum {
     HIGH_CARD,
-    PAIR=20,
+    PAIR,
     TWO_PAIR,
     THREE_OF_A_KIND,
     STRAIGHT,
@@ -29,10 +48,14 @@ class Poker {
     Deck deck;
     Hand DealerHand;
     Hand PlayerHand;
+    Hand revealedCards;
     bool gameOver = false;
     bool playerWins = false;
     int playerMoney = 8300;
     int pot = 0;
+
+    int playerScore;
+    int enemyScore;
 
     int buttonSelect = 0;
     vector<string> buttons = {"CALL", "RAISE"};
@@ -50,8 +73,7 @@ class Poker {
 
     void draw();
 
-    void hit();
-    void stand();
+    void call();
     void raise();
 
 };
