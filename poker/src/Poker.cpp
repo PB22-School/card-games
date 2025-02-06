@@ -4,6 +4,10 @@
 #include <iostream>
 using namespace std;
 
+const char* handLevels[10] = {"High Card", "Pair", "Two Pair", "Three Of A Kind", 
+                             "Straight", "Flush", "Full House", "Four Of A Kind", "Straight Flush",
+                             "Royal Flush"};
+
 string itos(int x) {
     string s = "";
 
@@ -34,6 +38,7 @@ void Poker::restart_game() {
     deck.resetDeck();
     DealerHand.clear();
     PlayerHand.clear();
+    revealedCards.clear();
 
     DealerHand.visibility = 0;
 
@@ -66,8 +71,8 @@ void Poker::start_game() {
             }
         }
         else if (gameOver) {
-            mvaddstr(20, 80, "Press 'Q' to Quit.");
-            mvaddstr(22, 80, "Press Any Other Key to Replay.");
+            mvaddstr(32, 80, "Press 'Q' to Quit.");
+            mvaddstr(34, 80, "Press Any Other Key to Replay.");
             char c = getch();
             if (c == 'q') {
                 return;
@@ -124,7 +129,7 @@ bool Poker::update() {
 
 int Poker::hand_value(Hand hand, int* score) {
 
-    for (int i = hand.size(); i >= 0; i--) {
+    for (int i = hand.size() - 1; i >= 0; i--) {
         revealedCards.add_card(hand.drop_card(i));
     }
 
@@ -147,7 +152,7 @@ int Poker::hand_value(Hand hand, int* score) {
     }
 
     for (int i = 0; i < 2; i++) {
-        hand.add_card(revealedCards.drop_card(revealedCards.size() - (i + 1)));
+        hand.add_card(revealedCards.drop_card(revealedCards.size() - 1));
     }
 
     // Flush = 5 same suit cards
@@ -265,7 +270,7 @@ int Poker::hand_value(Hand hand, int* score) {
         return PAIR;
     }
 
-    *score = highestCard;
+    *score = max(hand.cards[0].getRank(), hand.cards[1].getRank());
     return HIGH_CARD;
 }
 
@@ -275,10 +280,12 @@ void Poker::call() {
         return;
     }
 
-    revealedCards.add_card(deck.getCard());
-
-    if (revealedCards.size() >= 5) {
+    if (revealedCards.size() < 5) {
+        revealedCards.add_card(deck.getCard());
+    }
+    else if (revealedCards.size() == 5) {
         gameOver = true;
+        DealerHand.reveal();
 
         playerHandValue = hand_value(PlayerHand, &playerScore);
         enemyHandValue = hand_value(DealerHand, &enemyScore);
@@ -366,11 +373,12 @@ void Poker::draw() {
 
     clear();
     DealerHand.draw(50, 10);
-    PlayerHand.draw(50, 20);
+    PlayerHand.draw(50, 30);
+    revealedCards.draw(65, 20);
 
     color_set(YELLOW, nullptr);
-    mvaddstr(5, 10,"Use the 'a' and 'd' keys to control the buttons!");
-    mvaddstr(6, 10,"Use the SPACEBAR to select an option!");
+    mvaddstr(5, 10, "Use the 'a' and 'd' keys to control the buttons!");
+    mvaddstr(6, 10, "Use the SPACEBAR to select an option!");
 
     int sum = 0;
 
@@ -383,7 +391,7 @@ void Poker::draw() {
         }
 
         // mvaddstr(20, 20 + (i * 3), buttons[i].c_str());
-        draw_button(buttons[i], sum + 20 + (i * 2), 30, 2);
+        draw_button(buttons[i], sum + 20 + (i * 2), 50, 2);
         sum += button_length(buttons[i], 2);
 
     }
@@ -407,25 +415,27 @@ void Poker::draw() {
     mvaddstr(12, 86, itos(pot).c_str());
     mvaddstr(12, 86 + itos(pot).length(), "!");
 
+
+
     if (gameOver) {
 
         color_set(WHITE, nullptr);
         mvaddstr(10, 20, "Dealer's Hand:");
-        mvaddstr(11, 20, "idk");
+        mvaddstr(11, 20, handLevels[enemyHandValue]);
         mvaddstr(20, 20, "Your Hand:");
-        mvaddstr(21, 20, "idk");
+        mvaddstr(21, 20, handLevels[playerHandValue]);
 
         if (playerWins) {
             color_set(GREEN, nullptr);
-            mvaddstr(17, 80, "YOU WIN $");
-            mvaddstr(17, 89, itos(pot * 2).c_str());
-            mvaddstr(17, 89 + itos(pot * 2).length(), "!");
+            mvaddstr(30, 80, "YOU WIN $");
+            mvaddstr(30, 89, itos(pot * 2).c_str());
+            mvaddstr(30, 89 + itos(pot * 2).length(), "!");
         }
         else {
             color_set(RED, nullptr);
-            mvaddstr(17, 80, "YOU LOST $");
-            mvaddstr(17, 90, itos(pot).c_str());
-            mvaddstr(17, 90 + itos(pot).length(), "!");
+            mvaddstr(30, 80, "YOU LOST $");
+            mvaddstr(30, 90, itos(pot).c_str());
+            mvaddstr(30, 90 + itos(pot).length(), "!");
         }
     }
 }
