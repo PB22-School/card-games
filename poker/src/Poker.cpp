@@ -129,30 +129,18 @@ bool Poker::update() {
 
 int Poker::hand_value(Hand hand, int* score) {
 
-    for (int i = hand.size() - 1; i >= 0; i--) {
-        revealedCards.add_card(hand.drop_card(i));
-    }
-
-    int lowestCard;
-    int highestCard;
-
     int suits[N_SUITS] = {0,0,0,0};
     int ranks[N_RANKS] = {0,0,0, 0,0,0, 0,0,0, 0,0,0,0};
+    int highestHandCard = max(hand.cards[0].getRank(), hand.cards[1].getRank());
 
     for (int i = 0; i < revealedCards.size(); i++) {
-        int rank = revealedCards.cards[i].getRank() - 1;
-        if (rank < lowestCard) {
-            lowestCard = rank;
-        }
-        if (rank > highestCard) {
-            highestCard = rank;
-        }
         suits[revealedCards.cards[i].getSuit()]++;
-        ranks[revealedCards.cards[i].getRank()]++;
+        ranks[revealedCards.cards[i].getRank() - 1]++;
     }
 
-    for (int i = 0; i < 2; i++) {
-        hand.add_card(revealedCards.drop_card(revealedCards.size() - 1));
+    for (int i = 0; i < hand.size(); i++) {
+        suits[hand.cards[i].getSuit()]++;
+        ranks[hand.cards[i].getRank() - 1]++;
     }
 
     // Flush = 5 same suit cards
@@ -175,6 +163,8 @@ int Poker::hand_value(Hand hand, int* score) {
     int pair2 = -1;
     int threeOfAKind = -1;
     int fourOfAKind = -1;
+
+    *score = highestHandCard;
 
     for (int i = 0; i < N_RANKS; i++) {
 
@@ -270,7 +260,6 @@ int Poker::hand_value(Hand hand, int* score) {
         return PAIR;
     }
 
-    *score = max(hand.cards[0].getRank(), hand.cards[1].getRank());
     return HIGH_CARD;
 }
 
@@ -425,7 +414,13 @@ void Poker::draw() {
         mvaddstr(20, 20, "Your Hand:");
         mvaddstr(21, 20, handLevels[playerHandValue]);
 
-        if (playerWins) {
+        if (tie) {
+            color_set(YELLOW, nullptr);
+            mvaddstr(30, 80, "YOU TIED! YOU LOST $");
+            mvaddstr(30, 100, itos(pot / 2).c_str());
+            mvaddstr(30, 100 + itos(pot / 2).length(), "!");
+        }
+        else if (playerWins) {
             color_set(GREEN, nullptr);
             mvaddstr(30, 80, "YOU WIN $");
             mvaddstr(30, 89, itos(pot * 2).c_str());
