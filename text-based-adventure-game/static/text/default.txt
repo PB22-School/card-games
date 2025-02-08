@@ -1,0 +1,1 @@
+Not bold text. [bold] Bold Text! [/bold] not bold text.
