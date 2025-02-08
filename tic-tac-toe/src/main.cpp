@@ -13,6 +13,7 @@ enum {
     WHITE
 };
 
+bool playerTurn = false;
 int selectedSquare = 0;
 const string pieces[3] = {"     ", "  X  ", "  O  "};
 
@@ -64,26 +65,35 @@ void draw(Board* board) {
     }
 }
 
-void update(int ch, Board* board) {
+bool update(int ch, Board* board, Ai* ai) {
 
     bool changes = true;
+    int changeAmount = 0;
 
     switch (ch) {
         case 'w':
-            selectedSquare -= 3;
+            changeAmount = -3;
             break;
         case 'a':
-            selectedSquare -= 1;
+            changeAmount = -1;
             break;
         case 'd':
-            selectedSquare += 1;
+            changeAmount = 1;
             break;
         case 's':
-            selectedSquare += 3;
+            changeAmount = 3;
+            break;
+        case ' ':
+            board->visualMake(Move(selectedSquare, false));
             break;
         default:
             changes = false;
             break;
+    }
+
+    if (!board->isPlayerTurn) {
+        ai->turn(board);
+        changes = true;
     }
 
     if (selectedSquare >= 9) {
@@ -93,9 +103,20 @@ void update(int ch, Board* board) {
         selectedSquare += 9;
     }
 
+    if (board->IsGameOver()) {
+        draw(board);
+        return true;
+    }
+
+    while (board->piecesBB & (1 << selectedSquare)) {
+        selectedSquare = (selectedSquare + 1) % 9;
+    }
+
     if (changes) {
         draw(board);
     }
+
+    return false;
 }
 
 int main() {
@@ -116,6 +137,7 @@ int main() {
     bool gameRunning = true;
     bool gameOver = false;
     Board board;
+    Ai ai;
     draw(&board);
 
     int ch;
@@ -133,7 +155,7 @@ int main() {
             draw(&board);
         }
         else {
-            update(ch, &board);
+            gameOver = update(ch, &board, &ai);
         }
     }
 

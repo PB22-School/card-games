@@ -35,6 +35,8 @@ void Poker::restart_game() {
     gameOver = false;
     pot = 0;
 
+    tie = false;
+
     deck.resetDeck();
     DealerHand.clear();
     PlayerHand.clear();
