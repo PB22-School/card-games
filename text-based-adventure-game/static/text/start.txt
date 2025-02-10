@@ -1,0 +1,7 @@
+A torch on the wall sends flickers of [yellow]light[/yellow] across the dungeon's cell, revealing stark grey walls overrun by vines and ivy. Just in front of you, among the darkness, you see a mirror. Inside the mirror is an adventurer. What is this adventurer's name?{name=?1}
+Sample Text
+Sample Text
+{name} the adventurer stares at you through the mirror. What do you do?{branch}
+\{look mirror} You approach the mirror. You deepen your gaze at the adventurer.
+\{exit} You try to leave the dungeon's cell, but there's no Sample Text!
+None of your choices ended up mattering.
