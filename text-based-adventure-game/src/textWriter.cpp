@@ -44,6 +44,7 @@ void TextWriter::update(double delta) {
             // if we're branching for interactive story telling
 
             visible_characters = 0;
+            adding = true;
             int lastLine = lineNumber;
 
             bool anyMatch = false;
@@ -97,7 +98,6 @@ void TextWriter::update(double delta) {
                 if (match) {
                     anyMatch = true;
                     textLine = textLine.substr(closingCurly + 2);
-                    
                     break;
                 }
 
