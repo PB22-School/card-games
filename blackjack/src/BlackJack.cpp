@@ -70,8 +70,8 @@ void BlackJack::start_game() {
             }
         }
         else if (gameOver) {
-            mvaddstr(20, 80, "Press 'Q' to Quit.");
-            mvaddstr(22, 80, "Press Any Other Key to Replay.");
+            mvaddstr(10, 6, "Press 'Q' to Quit.");
+            mvaddstr(12, 6, "Press Any Other Key to Replay.");
             char c = getch();
             if (c == 'q') {
                 return;
@@ -262,12 +262,12 @@ void BlackJack::raise() {
 void BlackJack::draw() {
 
     clear();
-    DealerHand.draw(50, 10);
-    PlayerHand.draw(50, 20);
+    DealerHand.draw(45, 4);
+    PlayerHand.draw(45, 15);
 
     color_set(YELLOW, nullptr);
-    mvaddstr(5, 10,"Use the 'a' and 'd' keys to control the buttons!");
-    mvaddstr(6, 10,"Use the SPACEBAR to select an option!");
+    mvaddstr(0, 0,"Use the 'a' and 'd' keys to control the buttons!");
+    mvaddstr(1, 0,"Use the SPACEBAR to select an option! Use 'q' to QUIT!");
 
     int sum = 0;
 
@@ -280,49 +280,49 @@ void BlackJack::draw() {
         }
 
         // mvaddstr(20, 20 + (i * 3), buttons[i].c_str());
-        draw_button(buttons[i], sum + 20 + (i * 2), 30, 2);
+        draw_button(buttons[i], sum + 3 + (i * 2), 16, 2);
         sum += button_length(buttons[i], 2);
 
     }
 
     if (playerMoney >= 0) {
         color_set(GREEN, nullptr);
-        mvaddstr(10, 80, "Money: $");
-        mvaddstr(10, 88, itos(playerMoney).c_str());
-        mvaddstr(10, 88 + itos(playerMoney).length(), "!");
+        mvaddstr(4, 6, "Money: $");
+        mvaddstr(4, 14, itos(playerMoney).c_str());
+        mvaddstr(4, 14 + itos(playerMoney).length(), "!");
     }
     else {
         color_set(RED, nullptr);
-        mvaddstr(10, 80, "Money: -$");
-        mvaddstr(10, 89, itos(playerMoney).c_str());
-        mvaddstr(10, 89 + itos(playerMoney).length(), "!");
+        mvaddstr(4, 6, "Money: -$");
+        mvaddstr(4, 15, itos(playerMoney).c_str());
+        mvaddstr(4, 15 + itos(playerMoney).length(), "!");
     }
 
     
     color_set(WHITE, nullptr);
-    mvaddstr(12, 80, "Pot: $");
-    mvaddstr(12, 86, itos(pot).c_str());
-    mvaddstr(12, 86 + itos(pot).length(), "!");
+    mvaddstr(5, 6, "Pot: $");
+    mvaddstr(5, 12, itos(pot).c_str());
+    mvaddstr(5, 12 + itos(pot).length(), "!");
 
     if (gameOver) {
 
         color_set(WHITE, nullptr);
-        mvaddstr(10, 20, "Dealer's Hand:");
-        mvaddstr(11, 20, itos(hand_value(DealerHand)).c_str());
-        mvaddstr(20, 20, "Your Hand:");
-        mvaddstr(21, 20, itos(hand_value(PlayerHand)).c_str());
+        mvaddstr(4, 57, "Dealer's Hand:");
+        mvaddstr(5, 57, itos(hand_value(DealerHand)).c_str());
+        mvaddstr(10, 57, "Your Hand:");
+        mvaddstr(11, 57, itos(hand_value(PlayerHand)).c_str());
 
         if (playerWins) {
             color_set(GREEN, nullptr);
-            mvaddstr(17, 80, "YOU WIN $");
-            mvaddstr(17, 89, itos(pot * 2).c_str());
-            mvaddstr(17, 89 + itos(pot * 2).length(), "!");
+            mvaddstr(8, 6, "YOU WIN $");
+            mvaddstr(8, 15, itos(pot * 2).c_str());
+            mvaddstr(8, 15 + itos(pot * 2).length(), "!");
         }
         else {
             color_set(RED, nullptr);
-            mvaddstr(17, 80, "YOU LOST $");
-            mvaddstr(17, 90, itos(pot).c_str());
-            mvaddstr(17, 90 + itos(pot).length(), "!");
+            mvaddstr(8, 6, "YOU LOST $");
+            mvaddstr(8, 16, itos(pot).c_str());
+            mvaddstr(8, 16 + itos(pot).length(), "!");
         }
     }
 }

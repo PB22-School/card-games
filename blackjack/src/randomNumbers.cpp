@@ -1,5 +1,6 @@
 #include "randomNumbers.h"
 #include "random"
+#include <ctime>
 
 randomNumbers::randomNumbers() {
     srand(time(NULL));
